@@ -1,4 +1,5 @@
 const MongoClient = require('mongodb').MongoClient
+var DAOSQL = require('./DAOSQL');
 var db;
 var coll;
 
@@ -31,5 +32,18 @@ var findAll = function () {
     })
 }
 
+var addEmployee = function (employee) {
+    DAOSQL.getEmployeeforUpdate();
+    return new Promise((resolve, reject) => {
+        coll.insertOne(employee)
+            .then((documents) => {
+                resolve(documents)
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    })
+}
 
-module.exports = { findAll }
+
+module.exports = { findAll, addEmployee }

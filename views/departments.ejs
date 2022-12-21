@@ -1,0 +1,34 @@
+<h1> Departments</h1>
+
+<table border="1">
+    <tr>
+        <th>DID</th>
+        <th>Name</th>
+        <th>Budget</th>
+        <th>Location</th>
+        <th>Delete</th>
+    </tr>
+
+    <% for(let dep of departments){%>
+
+        <tr>
+            <td>
+                <%=dep.did %>
+            </td>
+            <td>
+                <%=dep.dname %>
+            </td>
+            <td>
+                <%=dep.budget %>
+            </td>
+            <td>
+                <%=dep.lid %>
+            </td>
+            <td>
+                <a href="http://localhost:3004/Departments/deleteDepartments/<%=dep.did%>">Delete</a>
+            </td>
+        </tr>
+        <% }%>
+
+</table>
+<a href="/">Home</a>

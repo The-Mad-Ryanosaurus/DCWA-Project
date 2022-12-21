@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
     res.render("home");
 });
 
-//SQL DATABASE
+//SQL EMPLOYEE DATABASE
 app.get("/EmployeesSQL", (req, res) => {
     DAOSQL.getEmployees()
         .then((emp) => {
@@ -38,7 +38,7 @@ app.get("/EmployeesSQL", (req, res) => {
             )
         })
 })
-
+//SQL EMPLOYEE EDIT DATABASE
 app.get("/EmployeesSQL/edit/:eid", (req, res) => {
     DAOSQL.getEmployeeforUpdate(req.params.eid)
         .then((ee) => {
@@ -53,7 +53,7 @@ app.get("/EmployeesSQL/edit/:eid", (req, res) => {
             )
         })
 })
-
+//SQL EMPLOYEE CHECK CRITERIA/EDIT EMPLOYEES
 app.post("/EmployeesSQL/edit/",
 
     [
@@ -94,6 +94,38 @@ app.post("/EmployeesSQL/edit/",
 
         }
     })
+//SQL DEPARTMENTS
+app.get("/Departments", (req, res) => {
+    DAOSQL.getDepartments()
+        .then((dep) => {
+            res.render('departments', { departments: dep })
+        })
+        .catch((error) => {
+            if (error.errno == 1146) {
+                res.send("Invalid table: " + error.sqlMessage)
+            }
+            else (
+                res.send(error)
+            )
+        })
+})
+//SQL GET DEPARTMENT AND DELETE
+app.get("/Departments/deleteDepartments/:did", (req, res) => {
+    DAOSQL.deleteDepartment(req.params.did)
+        .then((dd) => {
+            res.redirect("/departments")
+        })
+        .catch((error) => {
+            if (error.errno == 1146) {
+                res.send("Invalid table: " + error.sqlMessage)
+            }
+            else {
+                res.render("deleteDepartments", { depDID: req.params.did })
+
+
+            }
+        })
+})
 
 
 
@@ -112,3 +144,54 @@ app.get("/EmployeesMongoDB", (req, res) => {
             )
         })
 })
+
+app.get("/EmployeesMongoDB/add", (req, res) => {
+    res.render("addEmployeesMongoDB", { addEmployeeMongo: e, errors: undefined })
+})
+
+app.post("/EmployeesMongoDB/add",
+    [
+        check("_id").isLength({ min: 4 })
+            .withMessage("EID must be 4 characters")
+    ],
+    [
+        check("phone").isLength({ min: 5 })
+            .withMessage("Phone must be >5 characters")
+    ],
+    [
+        check("email").isEmail()
+            .withMessage("Email must be a valid email address.")
+    ],
+    (req, res) => {
+
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            res.render("addEmployeesMongoDB",
+                { errors: errors.errors })
+        } else {
+
+
+            DAOSQL.getEmployeeforUpdate(req.body._id)
+                .then((e) => {
+                    console.log(e)
+                    if (e.length == 0)
+                        res.render("errorSQLDB", { empSQL: req.body._id })
+                    else {
+                        DAOMongoDB.addEmployee(req.body)
+                            .then((e) => {
+                                console.log("Worked")
+                                res.redirect("/EmployeesMongoDB")
+                            }).catch((error) => {
+                                console.log("Did not work")
+                                res.render("errorMongoDB", { empMongo: req.body._id })
+                            })
+                    }
+                }).catch((error) => {
+                    console.log(error)
+
+                    res.redirect("/")
+                })
+        }
+
+    })
+
