@@ -170,7 +170,7 @@ app.post("/EmployeesMongoDB/add",
                 { errors: errors.errors })
         } else {
 
-
+            // ERROR MESSAGES FOR SQL AND MONGO DATA ENTRIES
             DAOSQL.getEmployeeforUpdate(req.body._id)
                 .then((e) => {
                     console.log(e)
